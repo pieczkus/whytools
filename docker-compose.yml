@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  cassandra:
+    image: cassandra:3
+    container_name: why-cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      CASSANDRA_CLUSTER_NAME: OUR_DOCKERIZED_CASSANDRA_SINGLE_NODE_CLUSTER
+    volumes:
+      - ./cassandra/:/etc/cassandra/
+
+  elasticsearch1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.0
+    container_name: why-elastic1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - cluster.name=arrsearchcluster
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    mem_limit: 768m
+    cap_add:
+      - IPC_LOCK
+
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.0
+    container_name: why-elastic2
+    environment:
+      - cluster.name=arrsearchcluster
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch1"
+    mem_limit: 768m
+    cap_add:
+      - IPC_LOCK
